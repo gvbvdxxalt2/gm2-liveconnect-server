@@ -2,7 +2,7 @@
 var {EventEmitter} = require("events");
 
 class StandardSocket extends EventEmitter {
-    constuctor (ws) {
+    constructor (ws) {
         super();
         this.ws = ws;
         this._closed = false;

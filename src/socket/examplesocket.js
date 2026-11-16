@@ -3,7 +3,6 @@ var {EventEmitter} = require("events");
 
 class ExampleSocket extends EventEmitter {
     constuctor () {
-        super();
         /* Do any setup here */
 
         /**

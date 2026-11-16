@@ -8,5 +8,22 @@ __metadata:
 "gm2-liveconnect-server@workspace:.":
   version: 0.0.0-use.local
   resolution: "gm2-liveconnect-server@workspace:."
+  dependencies:
+    ws: "npm:^8.23.0"
   languageName: unknown
   linkType: soft
+
+"ws@npm:^8.23.0":
+  version: 8.23.0
+  resolution: "ws@npm:8.23.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 10c0/1de9b70701c03cdb1b22abd17a1488dc6d22b4dc36a8c32b173d955356ea3634e78aea8ec734a78201dbb34f5a402d9603df32ef267bd477228cd54ae158e2f8
+  languageName: node
+  linkType: hard

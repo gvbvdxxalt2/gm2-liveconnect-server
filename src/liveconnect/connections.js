@@ -1,6 +1,7 @@
 
 var Client = require("./client.js");
 var {checkSocket} = require("./checksocket.js");
+var {EventEmitter} = require("events");
 
 class Connections {
     constructor (handler) {
@@ -15,7 +16,19 @@ class Connections {
         }
 
         var client = new Client(this.handler, socket);
+        
+        this.clients.push(client);
+    }
 
-        this.clients
+    doSync() {
+        for (var client of this.clients) {
+            client.doSync();
+        }
+    }
+
+    disconnectAll () {
+
     }
 }
+
+module.exports = Connections;
