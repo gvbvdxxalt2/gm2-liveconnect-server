@@ -39,6 +39,21 @@ class Connections {
         return this.clients.find((client) => client.id == targetID);
     }
 
+    sendGlobalEvent (sourceClient, name, value) {
+        var sourceID = "[SERVER]";
+        if (sourceClient) {
+            sourceID = sourceClient.id;
+        }
+
+        var message = {
+            type: "globalEvent",
+            id: sourceID,
+            name: ""+name,
+            value,
+        };
+        this.clients.forEach((client) => client.send(message));
+    }
+
     _handleDisconnect(client) {
         this.clients = this.clients.filter((c) => client !== c);
         this.sendUserIDsToClients();

@@ -10,7 +10,7 @@ class ClientMessageHandler {
 
     setVariable(name, value) {
         if (!this.client.variables.has(name)) {
-            var variable = Variable.createVariable({name, value});
+            var variable = Variable.createVariable(name, value);
             this.client.variables.set(name, variable);
             return;
         }
@@ -34,6 +34,9 @@ class ClientMessageHandler {
     handleMessage(json) {
         if (json.type == "sendUpdateLocalVars") {
             return this.handleUpdateLocalVars(json);
+        }
+        if (json.type == "globalEventSend") {
+            return this.handleGlobalEventSend(json);
         }
 
         return this.handleViolation(ViolationMessages.SOCKET_UNKNOWN_MESSAGE);
@@ -69,6 +72,16 @@ class ClientMessageHandler {
                 }
             }
         }
+    }
+
+    handleGlobalEventSend(globalEventData) {
+        if (
+            typeof globalEventData.name !== "string" ||
+            typeof globalEventData.value !== "undefined"
+        ) {
+            return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
+        }
+        this.connections.sendGlobalEvent(this.client, globalEventData.name, globalEventData.value);
     }
 }
 

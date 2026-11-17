@@ -1,6 +1,7 @@
 var {EventEmitter} = require("events");
 var StandardSocket = require("../socket/standardsocket.js");
 var Connections = require("./connections.js");
+var Variable = require("./variable.js");
 
 class ServerHandler extends EventEmitter {
 
@@ -13,12 +14,34 @@ class ServerHandler extends EventEmitter {
 
     constructor (options) {
         super();
+
+        this.connections = new Connections(this);
+        this.globalVariables = new Map();
+
         this.setOptionDefaults();
         this.setOptions(options);
 
-        this.connections = new Connections(this);
-
         this.start();
+    }
+
+    setGlobalVariable(varName, value, serverWriteOnly = true) {
+        var name = ""+varName;
+        var variable = this._newOrExistingGlobal(name, value);
+        if (!!serverWriteOnly) {
+            variable.locked = Variable.LOCK_MODE_LOCKED_CLIENTS;
+        }
+    }
+
+    _newOrExistingGlobal(name, value) {
+        
+        var variable = null;
+        if (this.globalVariables.has(name)) {
+            variable = this.globalVariables.get(name);
+        } else {
+            variable = Variable.createVariable(name, value);
+            this.globalVariables.set(name, variable);
+        }
+        return variable;
     }
 
     setOptionDefaults () {
@@ -38,6 +61,14 @@ class ServerHandler extends EventEmitter {
         if (typeof options.updateRate == "number") {
             this.updateRate = options.updateRate;
         }
+        
+        var globalVars = options.lockedGlobalVariables;
+        if (typeof globalVars == "object") {
+            for (var name of Object.keys(globalVars)) {
+                var value = globalVars[name];
+                this.setGlobalVariable(name, value, true);
+            }
+        }
     }
 
     handleConnection(...args) {
@@ -56,7 +87,6 @@ class ServerHandler extends EventEmitter {
         if (this.stopped) {
             throw new Error("Can't start a server handler after it has been stopped");
         }
-        clearInterval(this.syncInterval);
         this.syncInterval = setInterval(this._handleLoop.bind(this), 1000/this.updateRate);
     }
 

@@ -4,6 +4,7 @@ class ClientVariableSync {
         this.client = client;
         this.handler = client.handler;
         this.variableMap = new Map();
+        this.globalVariableMap = new Map();
         this.syncList = {
             local: [],
             global: []
@@ -35,6 +36,7 @@ class ClientVariableSync {
             });
         }
         if (syncList.global.length > 0) {
+            //console.log(syncList.global);
             this.client.send({
                 type: "updateGlobalVars",
                 variables: syncList.global
@@ -57,6 +59,23 @@ class ClientVariableSync {
                 clientMap.set(varName, value);
                 syncList.local.push({
                     id: clientID,
+                    name: varName,
+                    value
+                });
+            }
+        }
+    }
+
+    setGlobalSyncList() {
+        var {globalVariableMap} = this;
+        var {globalVariables} = this.handler;
+        var syncList = this.syncList;
+        for (var varName of globalVariables.keys()) {
+            var variable = globalVariables.get(varName);
+            var value = variable.getValue();
+            if (!globalVariableMap.has(varName) || value !== globalVariableMap.get(varName)) {
+                globalVariableMap.set(varName, value);
+                syncList.global.push({
                     name: varName,
                     value
                 });

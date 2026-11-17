@@ -3,6 +3,8 @@ var {EventEmitter} = require("events");
 var generateID = require("./id-generator.js");
 var ClientVariableSync = require("./client-variablesync.js");
 var ClientMessageHandler = require("./client-messagehandler.js");
+const { emitWarning } = require("process");
+const process = require("process");
 
 class Client extends EventEmitter {
     constructor (handler, socket) {
@@ -49,7 +51,17 @@ class Client extends EventEmitter {
     }
 
     disconnect() {
+        var disconnectEventSent = false;
+        this.socket.once("disconnect", () => disconnectEventSent = true);
+        
         this.socket.disconnect();
+
+        if (!disconnectEventSent) {
+            process.emitWarning(
+                "The socket instance is not emitting the disconnect event immediately after disconnection."+
+                "\nCheck your disconnect function's code."
+            );
+        }
     }
 
     doSync () {
@@ -57,6 +69,7 @@ class Client extends EventEmitter {
         for (var client of this.connections.clients) {
             this.sync.setLocalSyncList(client);
         }
+        this.sync.setGlobalSyncList();
         this.sync.sendSyncList();
     }
 }

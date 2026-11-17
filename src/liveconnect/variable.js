@@ -1,6 +1,6 @@
 
 class Variable {
-    static createVariable({name, value}) {
+    static createVariable(name, value) {
         return new Variable(name, value);
     }
 
