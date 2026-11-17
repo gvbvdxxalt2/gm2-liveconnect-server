@@ -54,6 +54,26 @@ class Connections {
         this.clients.forEach((client) => client.send(message));
     }
 
+    sendLocalEvent (sourceClient, targetID, name, value) {
+        var sourceID = "[SERVER]";
+        if (sourceClient) {
+            sourceID = sourceClient.id;
+        }
+
+        var targetClient = this.findClientByID(targetID);
+        if (!targetClient) {
+            return;
+        }
+
+        var message = {
+            type: "localEvent",
+            id: sourceID,
+            name: ""+name,
+            value,
+        };
+        targetClient.send(message);
+    }
+
     _handleDisconnect(client) {
         this.clients = this.clients.filter((c) => client !== c);
         this.sendUserIDsToClients();

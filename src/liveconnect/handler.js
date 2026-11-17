@@ -24,16 +24,16 @@ class ServerHandler extends EventEmitter {
         this.start();
     }
 
-    setGlobalVariable(varName, value, serverWriteOnly = true) {
+    setGlobalVariable(varName, value, serverWriteOnly = false) {
         var name = ""+varName;
         var variable = this._newOrExistingGlobal(name, value);
         if (!!serverWriteOnly) {
             variable.locked = Variable.LOCK_MODE_LOCKED_CLIENTS;
         }
+        variable.setServer(value);
     }
 
     _newOrExistingGlobal(name, value) {
-        
         var variable = null;
         if (this.globalVariables.has(name)) {
             variable = this.globalVariables.get(name);
@@ -47,7 +47,7 @@ class ServerHandler extends EventEmitter {
     setOptionDefaults () {
         this.stopped = false;
         this.Socket = StandardSocket;
-        this.updateRate = 50;
+        this.updateRate = 50; //This is at 50 because 60 seems to weaker servers slow.
     }
 
     setOptions(options) {

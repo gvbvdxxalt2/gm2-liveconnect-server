@@ -35,8 +35,15 @@ class ClientMessageHandler {
         if (json.type == "sendUpdateLocalVars") {
             return this.handleUpdateLocalVars(json);
         }
+        if (json.type == "sendUpdateGlobalVars") {
+            return this.handleUpdateGlobalVars(json);
+        }
+
         if (json.type == "globalEventSend") {
             return this.handleGlobalEventSend(json);
+        }
+        if (json.type == "localEventSend") {
+            return this.handleLocalEventSend(json);
         }
 
         return this.handleViolation(ViolationMessages.SOCKET_UNKNOWN_MESSAGE);
@@ -74,14 +81,58 @@ class ClientMessageHandler {
         }
     }
 
-    handleGlobalEventSend(globalEventData) {
+    handleUpdateGlobalVars ({ variables }) {
         if (
-            typeof globalEventData.name !== "string" ||
-            typeof globalEventData.value !== "undefined"
+          typeof variables !== "object" ||
+          !Array.isArray(variables)
         ) {
             return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
         }
-        this.connections.sendGlobalEvent(this.client, globalEventData.name, globalEventData.value);
+
+        for (var variable of variables) {
+            if (typeof variable !== "object") {
+                return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
+            }
+            if (
+                typeof variable.name !== "string" ||
+                typeof variable.value == "undefined"
+            ) {
+                return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
+            }
+
+            var globalVar = this.client.handler._newOrExistingGlobal(variable.name, variable.value);
+            globalVar.set(variable.value);
+        }
+    }
+
+    handleGlobalEventSend(globalEventData) {
+        if (
+            typeof globalEventData.name !== "string" ||
+            typeof globalEventData.value == "undefined"
+        ) {
+            return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
+        }
+        this.connections.sendGlobalEvent(
+            this.client,
+            globalEventData.name,
+            globalEventData.value
+        );
+    }
+
+    handleLocalEventSend(localEventData) {
+        if (
+            typeof localEventData.name !== "string" ||
+            typeof localEventData.value == "undefined" ||
+            typeof localEventData.to !== "string"
+        ) {
+            return this.handleViolation(ViolationMessages.BAD_MESSAGE_CALL);
+        }
+        this.connections.sendLocalEvent(
+            this.client,
+            localEventData.to,
+            localEventData.name,
+            localEventData.value
+        );
     }
 }
 

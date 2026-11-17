@@ -2,6 +2,7 @@
   "name": "gm2-liveconnect-server",
   "description": "A server written specifically for the Gvbvdxx Mod 2 Live Connect extension.",
   "packageManager": "yarn@4.18.0",
+  "main": "./src/",
   "dependencies": {
     "ws": "^8.23.0"
   },

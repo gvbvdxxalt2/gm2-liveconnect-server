@@ -4,13 +4,13 @@ class Variable {
         return new Variable(name, value);
     }
 
-    static LOCK_MODE_UNLOCKED () {
+    static get LOCK_MODE_UNLOCKED () {
         return 0;
     }
-    static LOCK_MODE_LOCKED_CLIENTS () {
+    static get LOCK_MODE_LOCKED_CLIENTS () {
         return 1;
     }
-    static LOCK_MODE_LOCKED_SERVER () {
+    static get LOCK_MODE_LOCKED_SERVER () {
         return 2;
     }
 
@@ -45,7 +45,6 @@ class Variable {
         this.value = 0;
         delete this.value;
         this.locked = 3;
-
     }
 }
 
