@@ -51,7 +51,8 @@ class ClientVariableSync {
         var clientID = client.id;
         var syncList = this.syncList;
         for (var varName of client.variables.keys()) {
-            var value = client.variables.get(varName);
+            var variable = client.variables.get(varName);
+            var value = variable.getValue();
             if (!clientMap.has(varName) || value !== clientMap.get(varName)) {
                 clientMap.set(varName, value);
                 syncList.local.push({

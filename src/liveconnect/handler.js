@@ -13,14 +13,18 @@ class ServerHandler extends EventEmitter {
 
     constructor (options) {
         super();
-        this.stopped = false;
-        this.Socket = StandardSocket;
-        this.connections = new Connections(this);
-        this.syncInterval = setInterval(this._handleLoop.bind(this), 1000/60);
-
+        this.setOptionDefaults();
         this.setOptions(options);
 
+        this.connections = new Connections(this);
+
         this.start();
+    }
+
+    setOptionDefaults () {
+        this.stopped = false;
+        this.Socket = StandardSocket;
+        this.updateRate = 50;
     }
 
     setOptions(options) {
@@ -31,9 +35,15 @@ class ServerHandler extends EventEmitter {
         if (typeof options.socket !== "undefined") {
             this.Socket = options.socket;
         }
+        if (typeof options.updateRate == "number") {
+            this.updateRate = options.updateRate;
+        }
     }
 
     handleConnection(...args) {
+        if (this.stopped) {
+            return;
+        }
         var socket = new this.Socket(...args);
         this.connections.connectSocket(socket);
     }
@@ -46,7 +56,8 @@ class ServerHandler extends EventEmitter {
         if (this.stopped) {
             throw new Error("Can't start a server handler after it has been stopped");
         }
-
+        clearInterval(this.syncInterval);
+        this.syncInterval = setInterval(this._handleLoop.bind(this), 1000/this.updateRate);
     }
 
     stop() {

@@ -16,8 +16,9 @@ class Connections {
         }
 
         var client = new Client(this.handler, socket);
-        
         this.clients.push(client);
+
+        this.sendUserIDsToClients();
     }
 
     doSync() {
@@ -26,8 +27,25 @@ class Connections {
         }
     }
 
-    disconnectAll () {
+    sendUserIDsToClients() {
+        var json = {
+            type: "updateUserlist",
+            users: this.clients.map((client) => client.id),
+        };
+        this.clients.forEach((client) => client.send(json));
+    }
 
+    findClientByID(targetID) {
+        return this.clients.find((client) => client.id == targetID);
+    }
+
+    _handleDisconnect(client) {
+        this.clients = this.clients.filter((c) => client !== c);
+        this.sendUserIDsToClients();
+    }
+
+    disconnectAll () {
+        this.clients.forEach((client) => client.disconnect());
     }
 }
 
